@@ -10,7 +10,7 @@ import java.util.Random;
 
 public class Test2 {
 	public static void main(String[] args) throws Exception {
-		Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/test_rls");
+		Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/backoffice", "postgres", "");
 		
 		StringBuffer sql = new StringBuffer();
 		sql.append("SELECT array_to_json(array_agg(row_to_json(q1))) AS json ")
@@ -46,7 +46,8 @@ public class Test2 {
 		
 		PreparedStatement ps = connection.prepareStatement(sql.toString());
 		
-		for (int i = 0; i < 10000; i++) {
+		long time1 = new Date().getTime();
+		for (int i = 0; i < 100000; i++) {
 			
 			if (i % 1000 == 0) {
 				System.out.println("Requests: " + i);
@@ -54,11 +55,13 @@ public class Test2 {
 
 			ResultSet rs = ps.executeQuery();
 			while (rs.next()) {
-				System.out.println(rs.getString("json"));
+				//System.out.println(rs.getString("json"));
 			}
 			rs.close();
 		}
+		long time2 = new Date().getTime();
 		ps.close();
 		connection.close();
+		System.out.println(100000.0 / (time2 - time1));
 	}
 }
