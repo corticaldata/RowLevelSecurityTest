@@ -19,3 +19,80 @@ FROM (
 	OFFSET 50
 	LIMIT 10
 ) q;
+
+
+
+
+
+EXPLAIN
+SELECT array_to_json(array_agg(row_to_json(q1)))
+FROM (
+	SELECT 
+		dg.name_ AS name,
+		CASE WHEN count(q2) > 0 THEN array_to_json(array_agg(row_to_json(q2))) ELSE NULL END AS domains
+	
+	FROM data_governance_ AS dg
+
+	LEFT JOIN LATERAL (
+		SELECT
+			d.name_ AS name,
+			CASE WHEN count(q3) > 0 THEN array_to_json(array_agg(row_to_json(q3))) ELSE NULL END AS entities
+		
+		FROM domain_ AS d
+		
+		LEFT JOIN LATERAL (
+			SELECT 
+				e.name_ AS name,
+				CASE WHEN count(q4) > 0 THEN array_to_json(array_agg(row_to_json(q4))) ELSE NULL END AS attributes
+				
+			FROM entity_ AS e
+
+			LEFT JOIN LATERAL (
+				SELECT
+					a.name_ AS name
+					
+				FROM attribute_ AS a
+				
+				WHERE a._entity_id_ = e._id_
+			
+			) q4 ON TRUE
+			
+			WHERE e._domain_id_ = d._id_
+			GROUP BY e.name_
+		) q3 ON TRUE
+		
+		WHERE d._id_ = 1
+	
+		GROUP BY d.name_
+	) q2 ON TRUE
+		
+	GROUP BY dg.name_
+	
+) q1;
+
+
+
+
+
+
+[
+	{
+		"name": "Supermercado",
+		"domains": [
+			{
+				"name": "Supermercado",
+				"entities": [
+					{
+						"name": "Producto",
+						"attributes": [
+							{
+								"name": "nombre"
+							}
+						]
+					}
+				]
+			}
+		]
+	}
+]
+
