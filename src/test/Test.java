@@ -43,13 +43,13 @@ import java.util.Random;
  */
 public class Test {
 	public static void main(String[] args) throws Exception {
-		final int NUMBER_OF_USERS = 1000; //10000000;
-		final int NUMBER_OF_ORDERS = 10000; //100000000;
-		final int NUMBER_OF_ORDER_LINES = 20000; //200000000;
+		final int NUMBER_OF_USERS = 10000; //10000000;
+		final int NUMBER_OF_ORDERS = 100000; //100000000;
+		final int NUMBER_OF_ORDER_LINES = 200000; //200000000;
 		
 		final int NUMBER_OF_REQUESTS = 10000;
 		
-		Connection connection = DriverManager.getConnection("jdbc:postgresql://127.0.0.1:5432/test_rls");
+		Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/test_rls");
 		
 		connection.setAutoCommit(false);
 		

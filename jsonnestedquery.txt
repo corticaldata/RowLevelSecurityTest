@@ -1,0 +1,13 @@
+explain
+select array_to_json(array_agg(row_to_json(q))) 
+from (
+	select o._id_, o._user_, array_to_json(array_agg(row_to_json(p))) ol 
+	from order_ o, lateral (
+		select ol.*
+		from order_line_ ol 
+		where ol._order_id_ = o._id_
+		limit 2
+	) p 
+	where o._id_ in (1, 2, 4)
+	group by o._id_, o._user_
+) q;
