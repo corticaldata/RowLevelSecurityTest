@@ -1,13 +1,21 @@
-explain
-select array_to_json(array_agg(row_to_json(q))) 
-from (
-	select o._id_, o._user_, array_to_json(array_agg(row_to_json(p))) ol 
-	from order_ o, lateral (
-		select ol.*
-		from order_line_ ol 
-		where ol._order_id_ = o._id_
-		limit 2
-	) p 
-	where o._id_ in (1, 2, 4)
-	group by o._id_, o._user_
+EXPLAIN
+SELECT array_to_json(array_agg(row_to_json(q)))
+FROM (
+	SELECT
+			o._id_ AS id,
+			o._user_ AS user,
+			o.total_ AS total,
+			CASE WHEN count(p) > 0 THEN array_to_json(array_agg(row_to_json(p))) ELSE NULL END AS orderLines
+	FROM order_ AS o
+	LEFT JOIN LATERAL (
+		SELECT
+				ol._id_ AS id,
+				ol.description_ AS description
+		FROM order_line_ AS ol
+		WHERE ol._order_id_ = o._id_
+		LIMIT 2
+	) p ON TRUE
+	GROUP BY o._id_, o._user_, o.total_
+	OFFSET 50
+	LIMIT 10
 ) q;
